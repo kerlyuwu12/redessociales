@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Registro Avanzado - Unidad Educativa San Francisco de Quito</title> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <style>
+    /* Estilos generales para el HTML y el cuerpo de la página */
+    html, body {
+      height: 100%; /* Asegura que el HTML y el cuerpo ocupen el 100% de la altura de la ventana. */
+      margin: 0; /* Elimina el margen predeterminado del cuerpo. */
+      padding: 0; /* Elimina el padding predeterminado del cuerpo. */
+      font-family: 'Inter', sans-serif; /* Aplica la fuente 'Inter' a todo el cuerpo. */
+      color: #fff; /* Color de texto predeterminado para el cuerpo. */
+      overflow-x: hidden; /* Evita el desplazamiento horizontal. */
+      display: flex; /* Usa flexbox para el cuerpo para un layout más flexible. */
+      flex-direction: column; /* Apila los elementos verticalmente. */
+    }
+
+    /* Estilos para el video de fondo */
+    .video-background {
+      background-size: cover; /* Asegura que el video cubra el área sin distorsionarse. */
+      filter: brightness(50%) contrast(1.1); /* Oscurece y aumenta el contraste del video para mejorar la legibilidad del contenido. */
+      min-width: 100%; /* Asegura que cubra todo el ancho. */
+      min-height: 100%; /* Asegura que cubra toda la altura. */
+      position: fixed; /* Fija el video en la posición de la ventana de visualización. */
+      top: 0; /* Alinea el video en la parte superior. */
+      left: 0; /* Alinea el video a la izquierda. */
+      width: 100%; /* Asegura que el video cubra todo el ancho. */
+      height: 100%; /* Asegura que el video cubra toda la altura. */
+      object-fit: cover; /* Escala el video para cubrir el contenedor manteniendo su relación de aspecto. */
+      z-index: -1; /* Envía el video al fondo, detrás de todo el contenido. */
+      border-radius: 0; /* Asegura que el video no tenga bordes redondeados si se aplica globalmente. */
+    }
+
+    /* Contenedor principal del formulario */
+    .container {
+     
+      width: 300px;/*Ancho del formulario*/
+      margin: 60px auto; /* Margen superior e inferior de 60px, centrado horizontalmente. */
+      background: rgba(255, 255, 255, 0.137); /* Fondo semitransparente más sutil. */
+      padding: 30px; /* Espaciado interno del contenedor. */
+      border-radius: 15px; /* Bordes más redondeados para el contenedor. */
+      box-shadow: 0 8px 32px 0 rgba(7, 24, 255, 0.37); /* Sombra más pronunciada y azulada con efecto de profundidad. */
+      color: #ffffff; /* Color de texto predeterminado para el formulario. */
+      backdrop-filter: blur(10px); /* Efecto de desenfoque más intenso para el fondo del formulario. */
+      -webkit-backdrop-filter: blur(10px); /* Compatibilidad con navegadores WebKit. */
+      border: 1px solid rgba(255, 255, 255, 0.18); /* Borde sutil para el efecto de cristal. */
+      animation: fadeInScale 0.8s ease-out forwards; /* Animación de entrada al cargar la página. */
+      flex-shrink: 0; /* Evita que el contenedor se encoja. */
+    }
+
+    /* Animación para la aparición del formulario */
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Estilos para el título del formulario */
+    h1 {
+      text-align: center; /* Centra el texto del título. */
+      color: #e0e0e0; /* Color de texto más claro para el título. */
+      margin-bottom: 25px; /* Margen inferior para separar el título del formulario. */
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7); /* Sombra de texto para mejorar la legibilidad. */
+    }
+
+    /* Estilos para el formulario */
+    form {
+      display: flex; /* Utiliza flexbox para organizar los elementos del formulario. */
+      flex-direction: column; /* Apila los elementos del formulario verticalmente. */
+    }
+
+    /* Estilos para las etiquetas de los campos del formulario */
+    label {
+      margin-top: 15px; /* Margen superior para separar las etiquetas. */
+      font-weight: 600; /* Texto en negrita para las etiquetas. */
+      color: #e0e0e0; /* Color claro para las etiquetas. */
+      margin-bottom: 5px; /* Espacio entre la etiqueta y el input. */
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.5); /* Sombra de texto para las etiquetas. */
+    }
+
+    /* Estilos para los campos de entrada de texto */
+    input {
+      padding: 12px; /* Espaciado interno de los campos de entrada. */
+      font-size: 16px; /* Tamaño de fuente de los campos de entrada. */
+      border: 2px solid #5a4b7a; /* Borde sólido para los campos de entrada. */
+      border-radius: 8px; /* Bordes redondeados para los campos de entrada. */
+      background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco casi opaco para los campos de entrada. */
+      color: #333; /* Color de texto oscuro para los campos de entrada. */
+      transition: all 0.3s ease; /* Transición suave para los cambios de estilo. */
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra interna para dar profundidad. */
+    }
+
+    /* Estilos para los campos de entrada cuando están en foco */
+    input:focus {
+      outline: none; /* Elimina el contorno predeterminado al enfocar. */
+      border-color: #8c7bbd; /* Cambia el color del borde al enfocar. */
+      box-shadow: 0 0 12px rgba(140, 123, 189, 0.7); /* Agrega una sombra más vibrante al enfocar. */
+      background-color: #ffffff; /* Fondo blanco puro al enfocar. */
+    }
+
+    /* Estilos para el botón de enviar */
+    button {
+      margin-top: 30px; /* Margen superior para separar el botón. */
+      padding: 14px; /* Espaciado interno del botón. */
+      background: linear-gradient(135deg, #4a2a82, #6a49a8); /* Degradado de fondo para el botón. */
+      color: rgb(255, 255, 255); /* Color de texto blanco para el botón. */
+      border: none; /* Elimina el borde del botón. */
+      border-radius: 8px; /* Bordes redondeados para el botón. */
+      font-size: 18px; /* Tamaño de fuente del botón. */
+      cursor: pointer; /* Cambia el cursor a una mano al pasar por encima. */
+      transition: all 0.3s ease; /* Transiciones suaves. */
+      font-weight: 700; /* Texto más en negrita para el botón. */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Sombra para el botón. */
+      letter-spacing: 0.5px; /* Espaciado entre letras. */
+    }
+
+    /* Estilos para el botón al pasar el ratón por encima */
+    button:hover {
+      background: linear-gradient(135deg, #6a49a8, #4a2a82); /* Invierte el degradado al pasar el ratón. */
+      transform: translateY(-3px) scale(1.02); /* Ligeramente eleva y agranda el botón. */
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6); /* Sombra más pronunciada al pasar el ratón. */
+    }
+
+    /* Estilos para el encabezado oficial (parte superior de la página) */
+    .encabezado-oficial-izquierda {
+      display: flex; /* Utiliza flexbox para alinear el logo y el título horizontalmente. */
+      align-items: center; /* Centra verticalmente los elementos dentro del header. */
+      padding: 20px 30px; /* Espaciado interno del encabezado. */
+      background-color: rgba(9, 11, 39, 0.85); /* Color de fondo oscuro semitransparente para el encabezado. */
+      border-bottom: 1px solid rgba(190, 184, 184, 0.3); /* Línea sutil en la parte inferior. */
+      border-radius: 0 0 10px 10px; /* Bordes inferiores redondeados para el encabezado. */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada para el encabezado. */
+      flex-shrink: 0; /* Evita que el encabezado se encoja. */
+    }
+
+    /* Contenedor del logo en el encabezado */
+    .contenedor-logo {
+      margin-right: 25px; /* Espacio entre el logo y el título. */
+    }
+
+    /* Estilos para la imagen del logo */
+    .contenedor-logo img {
+      height: 60px; /* Altura del logo. */
+      width: auto; /* Ancho automático para mantener la proporción. */
+      border-radius: 50%; /* Hace el logo circular. */
+      object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse. */
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4); /* Sombra para el logo. */
+      border: 2px solid rgba(255, 255, 255, 0.6); /* Borde blanco sutil para el logo. */
+    }
+
+    /* Contenedor del título y subtítulo en el encabezado */
+    .contenedor-titulo h1 {
+      font-size: 1.8em; /* Tamaño del título principal. */
+      margin-bottom: 5px; /* Espacio entre el título y el subtítulo. */
+      color: #ffffff; /* Color del título. */
+      font-weight: 800; /* Hace el título más grueso. */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* Sombra de texto más intensa. */
+    }
+
+    /* Estilos para el subtítulo oficial */
+    .contenedor-titulo p.subtitulo-oficial {
+      font-size: 0,5em; /* Tamaño del subtítulo. */
+      color: #c0c0c0; /* Color del subtítulo más claro. */
+      font-style: italic; /* Un toque de cursiva. */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); /* Sombra de texto para el subtítulo. */
+    }
+
+    /* Estilos para el pie de página */
+    footer {
+      background: rgba(4, 3, 29, 0.9); /* Color de fondo oscuro semitransparente para el pie de página. */
+      color: white; /* Color de texto blanco. */
+      text-align: center; /* Centra el texto. */
+      padding: 2rem 0; /* Espaciado interno. */
+      margin-top: auto; /* Empuja el pie de página hacia abajo. */
+      font-size: 0.9rem; /* Tamaño de fuente. */
+      border-top: 1px solid rgba(190, 184, 184, 0.3); /* Línea sutil en la parte superior. */
+      border-radius: 10px 10px 0 0; /* Bordes superiores redondeados. */
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5); /* Sombra para el pie de página. */
+      flex-shrink: 0; /* Evita que el pie de página se encoja. */
+    }
+
+   
+    /* Mensajes de validación */
+    .validation-message {
+      color: #ffdddd; /* Color de texto para mensajes de error. */
+      background-color: #c0392b; /* Fondo rojo para mensajes de error. */
+      padding: 8px; /* Espaciado interno. */
+      border-radius: 5px; /* Bordes redondeados. */
+      margin-top: 5px; /* Margen superior. */
+      font-size: 0.9em; /* Tamaño de fuente. */
+      display: none; /* Oculto por defecto. */
+      opacity: 0; /* Opacidad inicial para la animación. */
+      transition: opacity 0.3s ease; /* Transición para la opacidad. */
+    }
+
+    .validation-message.show {
+      display: block; /* Muestra el mensaje. */
+      opacity: 1; /* Hace el mensaje visible. */
+    }
+
+    /* Estilos para inputs inválidos */
+    input.invalid {
+      border-color: #c0392b; /* Borde rojo para inputs inválidos. */
+      box-shadow: 0 0 8px rgba(192, 57, 43, 0.7); /* Sombra roja para inputs inválidos. */
+    }
+
+    /* Media queries para hacer el diseño responsive */
+    @media (max-width: 768px) {
+      .encabezado-oficial-izquierda {
+        flex-direction: column; /* Apila los elementos del encabezado en pantallas pequeñas. */
+        text-align: center; /* Centra el texto. */
+        padding: 15px 20px; /* Ajusta el padding. */
+      }
+
+      .contenedor-logo {
+        margin-right: 0; /* Elimina el margen derecho del logo. */
+        margin-bottom: 15px; /* Añade margen inferior al logo. */
+      }
+
+      .contenedor-titulo h1 {
+        font-size: 1.8em; /* Reduce el tamaño del título. */
+      }
+
+      .contenedor-titulo p.subtitulo-oficial {
+        font-size: 1em; /* Reduce el tamaño del subtítulo. */
+      }
+
+      .container {
+        max-width: 100%; /* Ajusta el ancho máximo del formulario para pantallas medianas. */
+        margin: 30px auto; /* Ajusta el margen del formulario. */
+        padding: 20px; /* Ajusta el padding del formulario. */
+      }
+
+      button {
+        font-size: 16px; /* Reduce el tamaño de fuente del botón. */
+        padding: 10px; /* Reduce el padding del botón. */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .contenedor-logo img {
+        height: 50px; /* Reduce aún más el tamaño del logo. */
+      }
+
+      .contenedor-titulo h1 {
+        font-size: 1.5em; /* Reduce el tamaño del título. */
+      }
+
+      .contenedor-titulo p.subtitulo-oficial {
+        font-size: 0.9em; /* Reduce el tamaño del subtítulo. */
+      }
+
+      .container {
+        max-width: 95%; /* Ajusta el ancho máximo del formulario para pantallas muy pequeñas. */
+        margin: 20px auto; /* Ajusta el margen del formulario para pantallas muy pequeñas. */
+        padding: 15px; /* Ajusta el padding del formulario. */
+      }
+
+      input {
+        padding: 10px; /* Reduce el padding de los inputs. */
+        font-size: 14px; /* Reduce el tamaño de fuente de los inputs. */
+      }
+    }
+  </style>
+</head>
+<body>
+  <video class="video-background" autoplay loop muted playsinline>
+    <source src="https://video-previews.elements.envatousercontent.com/h264-video-previews/8dede80c-0d10-4820-8d7a-b49a1c19779c/20873947.mp4" type="video/mp4">
+    Tu navegador no soporta la etiqueta de video. </video>
+
+  <header class="encabezado-oficial-izquierda">
+    <div class="contenedor-logo">
+      <img src="logotipo.jpg" alt="Logo Oficial de la Unidad Educativa San Francisco de Quito">
+    </div>
+    <div class="contenedor-titulo">
+      <h1>Unidad Educativa Municipal Técnica y en Ciencias "San Francisco de Quito"</h1>
+      <p class="subtitulo-oficial">VENTAJAS Y DESVENTAJAS DEL USO DE LAS REDES SOCIALES</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Registro</h1>
+    <form id="registrationForm" action="Pagina Principal.html" method="get">
+      <label for="nombre">Nombre:</label> <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu nombre completo" required aria-label="Ingresa tu nombre"> <div id="nombre-error" class="validation-message"></div> <label for="email">Correo Electrónico:</label> <input type="email" id="email" name="email" placeholder="ejemplo@dominio.com" required aria-label="Ingresa tu correo electrónico"> <div id="email-error" class="validation-message"></div> <button type="submit">Iniciar sesión</button> </form>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 - kerly_Wendy_Jhoel_Tiago</p> <div class="social-icons">
+      
+  </footer>
+
+  <script>
+    // JavaScript para la validación básica del formulario y efectos visuales.
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('registrationForm'); // Obtiene el formulario por su ID.
+      const nombreInput = document.getElementById('nombre'); // Obtiene el input de nombre.
+      const emailInput = document.getElementById('email'); // Obtiene el input de email.
+      const nombreError = document.getElementById('nombre-error'); // Obtiene el div de error para el nombre.
+      const emailError = document.getElementById('email-error'); // Obtiene el div de error para el email.
+
+      // Función para mostrar un mensaje de error.
+      function showError(element, message) {
+        element.textContent = message; // Establece el texto del mensaje.
+        element.classList.add('show'); // Muestra el mensaje.
+        element.previousElementSibling.classList.add('invalid'); // Añade clase 'invalid' al input anterior.
+      }
+
+      // Función para ocultar un mensaje de error.
+      function hideError(element) {
+        element.textContent = ''; // Limpia el texto del mensaje.
+        element.classList.remove('show'); // Oculta el mensaje.
+        element.previousElementSibling.classList.remove('invalid'); // Remueve clase 'invalid' del input anterior.
+      }
+
+      // Valida el campo de nombre.
+      function validateNombre() {
+        if (nombreInput.value.trim() === '') { // Si el campo está vacío.
+          showError(nombreError, 'El nombre es obligatorio.'); // Muestra error.
+          return false;
+        } else {
+          hideError(nombreError); // Oculta error.
+          return true;
+        }
+      }
+
+      // Valida el campo de email.
+      function validateEmail() {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Patrón regex para validar email.
+        if (emailInput.value.trim() === '') { // Si el campo está vacío.
+          showError(emailError, 'El correo electrónico es obligatorio.'); // Muestra error.
+          return false;
+        } else if (!emailPattern.test(emailInput.value)) { // Si el email no coincide con el patrón.
+          showError(emailError, 'Por favor, introduce un correo electrónico válido.'); // Muestra error de formato.
+          return false;
+        } else {
+          hideError(emailError); // Oculta error.
+          return true;
+        }
+      }
+
+      // Escucha el evento 'input' para validar en tiempo real.
+      nombreInput.addEventListener('input', validateNombre);
+      emailInput.addEventListener('input', validateEmail);
+
+      // Escucha el evento 'submit' del formulario.
+      form.addEventListener('submit', (event) => {
+        const isNombreValid = validateNombre(); // Valida el nombre al enviar.
+        const isEmailValid = validateEmail(); // Valida el email al enviar.
+
+        if (!isNombreValid || !isEmailValid) { // Si alguno de los campos no es válido.
+          event.preventDefault(); // Previene el envío del formulario.
+        }
+        // Si ambos son válidos, el formulario se enviará normalmente a "Pagina Principal.html".
+      });
+    });
+  </script>
+</body>
+</html>

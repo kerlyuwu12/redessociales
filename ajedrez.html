@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Ajedrez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para el tablero y las piezas */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+             background-image: url('fond1.jpg'); /* Reemplaza 'tu-imagen.jpg' con la ruta de tu imagen */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+
+            /* La imagen cubrirá todo el fondo, sin distorsionarse */
+            background-size: cover; /* La imagen cubrirá todo el fondo, sin distorsionarse */
+            background-attachment: fixed;/* Fija la imagen de fondo para que no se mueva al hacer scroll */
+            background-position: center center; /* Centra la imagen de fondo */
+            color: #e2e8f0; /* Color de texto claro */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr)); /* 8 columnas iguales */
+            grid-template-rows: repeat(8, minmax(0, 1fr)); /* 8 filas iguales */
+            width: 100%; /* Ancho completo */
+            max-width: 600px; /* Ancho máximo para el tablero */
+            aspect-ratio: 1 / 1; /* Mantener proporción cuadrada */
+            border: 4px solid #000000; /* Borde del tablero */
+            border-radius: 8px; /* Esquinas redondeadas */
+            overflow: hidden; /* Asegurar que las esquinas redondeadas se apliquen bien */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Sombra para profundidad */
+        }
+
+        .square {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(24px, 5vw, 48px); /* Tamaño de fuente responsivo para las piezas */
+            cursor: pointer;
+            user-select: none; /* Prevenir selección de texto */
+            transition: background-color 0.2s ease; /* Transición suave para el hover/seleccionado */
+        }
+
+        .light {
+            background-color: #f7fafc; /* Cuadrado claro */
+            color: #000000; /* Color de pieza en cuadrado claro */
+        }
+
+        .dark {
+            background-color: #596472; /* Cuadrado oscuro */
+            color: #000000; /* Color de pieza en cuadrado oscuro */
+        }
+
+        .selected {
+            background-color: #07f083; /* Color al seleccionar una pieza */
+        }
+
+        .highlight {
+            background-color: #cffd51; /* Color para movimientos válidos */
+        }
+
+        .message-box {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #202122;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            color: #dfe2e6;
+            min-width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .game-button {
+            padding: 12px 25px;
+            background-color: #46f2f8; /* Azul */
+            color: rgb(0, 0, 0);
+            border: none;
+            border-radius: 25px; /* Más redondeado */
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: bold;
+        }
+
+        .game-button:hover {
+            background-color: #57f4ff; /* Azul más oscuro al pasar el ratón */
+            transform: translateY(-2px); /* Efecto de elevación */
+        }
+
+        .game-button:active {
+            transform: translateY(0); /* Efecto de clic */
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.103);
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center justify-center min-h-screen p-5">
+    <h1 class="text-4xl font-extrabold mb-8 text-white-400">Juego de Ajedrez</h1>
+
+    <div id="chess-board" class="chess-board">
+        </div>
+
+    <div id="message-box" class="message-box">
+        Turno de las Blancas
+    </div>
+
+    <div class="button-container">
+        <button id="reset-button" class="game-button">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        // Definición de las piezas de ajedrez con sus caracteres Unicode
+        const PIECES = {
+            'R': '&#9814;', 'N': '&#9816;', 'B': '&#9815;', 'Q': '&#9813;', 'K': '&#9812;', 'P': '&#9817;', // Blancas
+            'r': '&#9820;', 'n': '&#9822;', 'b': '&#9821;', 'q': '&#9819;', 'k': '&#9818;', 'p': '&#9823;'  // Negras
+        };
+
+        // Estado inicial del tablero
+        const initialBoardState = [
+            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        ];
+
+        let board = []; // El tablero actual del juego
+        let currentPlayer = 'white'; // 'white' o 'black'
+        let selectedPiece = null; // Almacena la pieza seleccionada {row, col, piece}
+        let possibleMoves = []; // Almacena los movimientos válidos para la pieza seleccionada
+        let hasKingMoved = { 'white': false, 'black': false }; // Para enroque
+        let hasRookMoved = {
+            'white': { '0,0': false, '0,7': false, '7,0': false, '7,7': false }, // [row, col] for white rooks
+            'black': { '0,0': false, '0,7': false, '7,0': false, '7,7': false }  // [row, col] for black rooks
+        };
+        let enPassantTarget = null; // {row, col} del cuadrado donde se puede hacer en passant
+        let gameOver = false;
+
+        const chessBoardElement = document.getElementById('chess-board');
+        const messageBox = document.getElementById('message-box');
+        const resetButton = document.getElementById('reset-button');
+
+        /**
+         * Inicializa el tablero del juego a su estado inicial.
+         */
+        function initializeBoard() {
+            // Crear una copia profunda del tablero inicial
+            board = initialBoardState.map(row => [...row]);
+            currentPlayer = 'white';
+            selectedPiece = null;
+            possibleMoves = [];
+            hasKingMoved = { 'white': false, 'black': false };
+            hasRookMoved = {
+                'white': { '0,0': false, '0,7': false, '7,0': false, '7,7': false },
+                'black': { '0,0': false, '0,7': false, '7,0': false, '7,7': false }
+            };
+            enPassantTarget = null;
+            gameOver = false;
+            renderBoard();
+            updateMessage(`Turno de las ${currentPlayer === 'white' ? 'Blancas' : 'Negras'}`);
+        }
+
+        /**
+         * Dibuja el tablero de ajedrez en el HTML.
+         */
+        function renderBoard() {
+            chessBoardElement.innerHTML = ''; // Limpiar el tablero existente
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    const square = document.createElement('div');
+                    square.classList.add('square');
+                    square.classList.add((i + j) % 2 === 0 ? 'light' : 'dark');
+                    square.dataset.row = i;
+                    square.dataset.col = j;
+
+                    const piece = board[i][j];
+                    if (piece) {
+                        square.innerHTML = PIECES[piece];
+                        // Añadir clase para el color de la pieza (para CSS, si es necesario)
+                        if (piece === piece.toUpperCase()) {
+                            square.classList.add('piece-white');
+                        } else {
+                            square.classList.add('piece-black');
+                        }
+                    }
+
+                    // Resaltar el cuadrado seleccionado
+                    if (selectedPiece && selectedPiece.row === i && selectedPiece.col === j) {
+                        square.classList.add('selected');
+                    }
+
+                    // Resaltar los movimientos posibles
+                    if (possibleMoves.some(move => move.row === i && move.col === j)) {
+                        square.classList.add('highlight');
+                    }
+
+                    square.addEventListener('click', handleSquareClick);
+                    chessBoardElement.appendChild(square);
+                }
+            }
+        }
+
+        /**
+         * Maneja el clic en un cuadrado del tablero.
+         * @param {Event} event - El evento de clic.
+         */
+        function handleSquareClick(event) {
+            if (gameOver) return; // No permitir clics si el juego ha terminado
+
+            const row = parseInt(event.currentTarget.dataset.row);
+            const col = parseInt(event.currentTarget.dataset.col);
+            const piece = board[row][col];
+
+            // Si hay una pieza seleccionada y el clic es en un movimiento posible
+            if (selectedPiece && possibleMoves.some(move => move.row === row && move.col === col)) {
+                movePiece(selectedPiece.row, selectedPiece.col, row, col);
+                selectedPiece = null;
+                possibleMoves = [];
+            } else {
+                // Si el clic es en una pieza del jugador actual
+                if (piece && ((currentPlayer === 'white' && piece === piece.toUpperCase()) || (currentPlayer === 'black' && piece === piece.toLowerCase()))) {
+                    selectedPiece = { row, col, piece };
+                    possibleMoves = getLegalMoves(row, col, piece); // Obtener solo movimientos legales
+                } else {
+                    // Deseleccionar si se hace clic en un cuadrado vacío o una pieza del oponente
+                    selectedPiece = null;
+                    possibleMoves = [];
+                }
+            }
+            renderBoard(); // Volver a renderizar para actualizar los resaltados
+        }
+
+        /**
+         * Obtiene todos los movimientos legales para una pieza.
+         * Un movimiento es legal si no deja al propio rey en jaque.
+         * @param {number} row - Fila actual de la pieza.
+         * @param {number} col - Columna actual de la pieza.
+         * @param {string} piece - La pieza (ej. 'P', 'r').
+         * @returns {Array<Object>} Lista de objetos {row, col} de movimientos legales.
+         */
+        function getLegalMoves(row, col, piece) {
+            const pseudoLegalMoves = getPseudoLegalMoves(row, col, piece);
+            const legalMoves = [];
+            const originalBoard = board.map(r => [...r]); // Copia del tablero actual
+
+            for (const move of pseudoLegalMoves) {
+                const newBoard = originalBoard.map(r => [...r]); // Copia para simular
+                const fromRow = row;
+                const fromCol = col;
+                const toRow = move.row;
+                const toCol = move.col;
+
+                // Simular el movimiento en el tablero temporal
+                newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+                newBoard[fromRow][fromCol] = '';
+
+                // Lógica especial para simular enroque
+                if (piece.toLowerCase() === 'k' && Math.abs(toCol - fromCol) === 2) {
+                    // Enroque corto
+                    if (toCol === fromCol + 2) {
+                        newBoard[toRow][toCol - 1] = newBoard[fromRow][7]; // Mover torre
+                        newBoard[fromRow][7] = '';
+                    }
+                    // Enroque largo
+                    else if (toCol === fromCol - 2) {
+                        newBoard[toRow][toCol + 1] = newBoard[fromRow][0]; // Mover torre
+                        newBoard[fromRow][0] = '';
+                    }
+                }
+                // Lógica especial para simular captura al paso
+                if (piece.toLowerCase() === 'p' && move.isEnPassant) {
+                    const pawnRow = fromRow;
+                    const pawnCol = toCol; // La columna del peón capturado es la de destino
+                    newBoard[pawnRow][pawnCol] = '';
+                }
+
+                // Si el rey no está en jaque después del movimiento, es legal
+                if (!isKingInCheck(newBoard, currentPlayer)) {
+                    legalMoves.push(move);
+                }
+            }
+            return legalMoves;
+        }
+
+        /**
+         * Obtiene todos los movimientos pseudo-legales para una pieza dada.
+         * Estos movimientos siguen las reglas de la pieza pero no consideran si el rey queda en jaque.
+         * @param {number} row - Fila actual de la pieza.
+         * @param {number} col - Columna actual de la pieza.
+         * @param {string} piece - La pieza (ej. 'P', 'r').
+         * @returns {Array<Object>} Lista de objetos {row, col, isCapture, isCastling, isEnPassant} de movimientos pseudo-legales.
+         */
+        function getPseudoLegalMoves(row, col, piece) {
+            const moves = [];
+            const isWhite = piece === piece.toUpperCase();
+            const opponentColor = isWhite ? 'black' : 'white';
+
+            const addMoveIfValid = (r, c, isCapture = false, isCastling = false, isEnPassant = false) => {
+                if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+                    const targetPiece = board[r][c];
+                    // Si el cuadrado está vacío o tiene una pieza del oponente
+                    if (!targetPiece || ((targetPiece === targetPiece.toUpperCase() && opponentColor === 'white') || (targetPiece === targetPiece.toLowerCase() && opponentColor === 'black'))) {
+                        moves.push({ row: r, col: c, isCapture: !!targetPiece || isEnPassant, isCastling, isEnPassant });
+                    }
+                }
+            };
+
+            const addSlidingMoves = (directions) => {
+                for (const [dr, dc] of directions) {
+                    let r = row + dr;
+                    let c = col + dc;
+                    while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+                        const targetPiece = board[r][c];
+                        if (!targetPiece) {
+                            moves.push({ row: r, col: c });
+                        } else {
+                            if ((targetPiece === targetPiece.toUpperCase() && opponentColor === 'white') || (targetPiece === targetPiece.toLowerCase() && opponentColor === 'black')) {
+                                moves.push({ row: r, col: c, isCapture: true }); // Puede capturar
+                            }
+                            break; // Bloqueado por una pieza
+                        }
+                        r += dr;
+                        c += dc;
+                    }
+                }
+            };
+
+            switch (piece.toLowerCase()) {
+                case 'p': // Peón
+                    const direction = isWhite ? -1 : 1;
+                    // Avance de un cuadrado
+                    if (board[row + direction][col] === '') {
+                        addMoveIfValid(row + direction, col);
+                        // Avance de dos cuadrados en el primer movimiento
+                        if (((isWhite && row === 6) || (!isWhite && row === 1)) && board[row + 2 * direction][col] === '') {
+                            addMoveIfValid(row + 2 * direction, col);
+                        }
+                    }
+                    // Capturas diagonales
+                    if (col > 0) {
+                        const targetPiece = board[row + direction][col - 1];
+                        if (targetPiece && ((targetPiece === targetPiece.toUpperCase() && opponentColor === 'white') || (targetPiece === targetPiece.toLowerCase() && opponentColor === 'black'))) {
+                            addMoveIfValid(row + direction, col - 1, true);
+                        }
+                    }
+                    if (col < 7) {
+                        const targetPiece = board[row + direction][col + 1];
+                        if (targetPiece && ((targetPiece === targetPiece.toUpperCase() && opponentColor === 'white') || (targetPiece === targetPiece.toLowerCase() && opponentColor === 'black'))) {
+                            addMoveIfValid(row + direction, col + 1, true);
+                        }
+                    }
+                    // Captura al paso (En Passant)
+                    if (enPassantTarget && enPassantTarget.row === row + direction && enPassantTarget.col === col - 1) {
+                        addMoveIfValid(row + direction, col - 1, true, false, true);
+                    }
+                    if (enPassantTarget && enPassantTarget.row === row + direction && enPassantTarget.col === col + 1) {
+                        addMoveIfValid(row + direction, col + 1, true, false, true);
+                    }
+                    break;
+                case 'r': // Torre
+                    addSlidingMoves([[0, 1], [0, -1], [1, 0], [-1, 0]]);
+                    break;
+                case 'n': // Caballo
+                    const knightMoves = [
+                        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+                        [1, -2], [1, 2], [2, -1], [2, 1]
+                    ];
+                    knightMoves.forEach(([dr, dc]) => addMoveIfValid(row + dr, col + dc));
+                    break;
+                case 'b': // Alfil
+                    addSlidingMoves([[1, 1], [1, -1], [-1, 1], [-1, -1]]);
+                    break;
+                case 'q': // Reina
+                    addSlidingMoves([
+                        [0, 1], [0, -1], [1, 0], [-1, 0], // Torre
+                        [1, 1], [1, -1], [-1, 1], [-1, -1]  // Alfil
+                    ]);
+                    break;
+                case 'k': // Rey
+                    const kingMoves = [
+                        [-1, -1], [-1, 0], [-1, 1],
+                        [0, -1],           [0, 1],
+                        [1, -1], [1, 0], [1, 1]
+                    ];
+                    kingMoves.forEach(([dr, dc]) => addMoveIfValid(row + dr, col + dc));
+
+                    // Enroque
+                    if (!hasKingMoved[currentPlayer]) {
+                        const kingRow = isWhite ? 7 : 0;
+                        // Enroque corto (lado del rey)
+                        if (col === 4 && board[kingRow][5] === '' && board[kingRow][6] === '' && !hasRookMoved[currentPlayer][`${kingRow},7`]) {
+                            // Verificar que los cuadrados por los que pasa el rey no estén en jaque
+                            if (!isSquareAttacked(board, kingRow, 4, opponentColor) &&
+                                !isSquareAttacked(board, kingRow, 5, opponentColor) &&
+                                !isSquareAttacked(board, kingRow, 6, opponentColor)) {
+                                moves.push({ row: kingRow, col: 6, isCastling: true });
+                            }
+                        }
+                        // Enroque largo (lado de la reina)
+                        if (col === 4 && board[kingRow][1] === '' && board[kingRow][2] === '' && board[kingRow][3] === '' && !hasRookMoved[currentPlayer][`${kingRow},0`]) {
+                            // Verificar que los cuadrados por los que pasa el rey no estén en jaque
+                             if (!isSquareAttacked(board, kingRow, 4, opponentColor) &&
+                                !isSquareAttacked(board, kingRow, 3, opponentColor) &&
+                                !isSquareAttacked(board, kingRow, 2, opponentColor)) {
+                                moves.push({ row: kingRow, col: 2, isCastling: true });
+                            }
+                        }
+                    }
+                    break;
+            }
+            return moves;
+        }
+
+        /**
+         * Mueve una pieza de una posición a otra.
+         * @param {number} fromRow - Fila de origen.
+         * @param {number} fromCol - Columna de origen.
+         * @param {number} toRow - Fila de destino.
+         * @param {number} toCol - Columna de destino.
+         */
+        function movePiece(fromRow, fromCol, toRow, toCol) {
+            const piece = board[fromRow][fromCol];
+            const isWhite = piece === piece.toUpperCase();
+            const originalEnPassantTarget = enPassantTarget; // Guardar para revertir si es necesario
+
+            // Restablecer el objetivo de en passant para el siguiente turno
+            enPassantTarget = null;
+
+            // Lógica de enroque
+            if (piece.toLowerCase() === 'k' && Math.abs(toCol - fromCol) === 2) {
+                // Enroque corto
+                if (toCol === fromCol + 2) {
+                    board[toRow][toCol - 1] = board[fromRow][7]; // Mover torre
+                    board[fromRow][7] = '';
+                }
+                // Enroque largo
+                else if (toCol === fromCol - 2) {
+                    board[toRow][toCol + 1] = board[fromRow][0]; // Mover torre
+                    board[fromRow][0] = '';
+                }
+                hasKingMoved[currentPlayer] = true;
+            } else if (piece.toLowerCase() === 'k') {
+                hasKingMoved[currentPlayer] = true;
+            } else if (piece.toLowerCase() === 'r') {
+                // Marcar que la torre se ha movido
+                hasRookMoved[currentPlayer][`${fromRow},${fromCol}`] = true;
+            } else if (piece.toLowerCase() === 'p') {
+                // Si el peón avanzó dos casillas, establecer objetivo de en passant
+                if (Math.abs(toRow - fromRow) === 2) {
+                    enPassantTarget = { row: isWhite ? toRow + 1 : toRow - 1, col: toCol };
+                }
+                // Si es una captura al paso
+                if (toCol !== fromCol && board[toRow][toCol] === '') { // Si no hay pieza en el destino pero es un movimiento diagonal
+                    const capturedPawnRow = isWhite ? toRow + 1 : toRow - 1;
+                    board[capturedPawnRow][toCol] = ''; // Eliminar el peón capturado
+                }
+            }
+
+            // Mover la pieza
+            board[toRow][toCol] = board[fromRow][fromCol];
+            board[fromRow][fromCol] = '';
+
+            // Lógica de promoción de peón
+            if (piece.toLowerCase() === 'p') {
+                if ((isWhite && toRow === 0) || (!isWhite && toRow === 7)) {
+                    board[toRow][toCol] = isWhite ? 'Q' : 'q'; // Promocionar a Reina por defecto
+                }
+            }
+
+            switchPlayer();
+            checkGameStatus();
+        }
+
+        /**
+         * Cambia el turno al siguiente jugador.
+         */
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+            updateMessage(`Turno de las ${currentPlayer === 'white' ? 'Blancas' : 'Negras'}`);
+        }
+
+        /**
+         * Actualiza el mensaje en la caja de mensajes.
+         * @param {string} message - El mensaje a mostrar.
+         */
+        function updateMessage(message) {
+            messageBox.textContent = message;
+        }
+
+        /**
+         * Encuentra la posición del rey de un color dado en un tablero.
+         * @param {Array<Array<string>>} currentBoard - El estado actual del tablero.
+         * @param {string} kingColor - 'white' o 'black'.
+         * @returns {Object|null} Objeto {row, col} si se encuentra el rey, de lo contrario null.
+         */
+        function findKing(currentBoard, kingColor) {
+            const kingChar = kingColor === 'white' ? 'K' : 'k';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (currentBoard[r][c] === kingChar) {
+                        return { row: r, col: c };
+                    }
+                }
+            }
+            return null; // No debería ocurrir en un juego válido
+        }
+
+        /**
+         * Verifica si un cuadrado específico está siendo atacado por piezas del color opuesto.
+         * @param {Array<Array<string>>} currentBoard - El estado actual del tablero.
+         * @param {number} row - Fila del cuadrado a verificar.
+         * @param {number} col - Columna del cuadrado a verificar.
+         * @param {string} attackingColor - El color de las piezas atacantes ('white' o 'black').
+         * @returns {boolean} True si el cuadrado está atacado, de lo contrario False.
+         */
+        function isSquareAttacked(currentBoard, row, col, attackingColor) {
+            // Guardar el estado actual de la pieza seleccionada y movimientos posibles
+            const originalSelectedPiece = selectedPiece;
+            const originalPossibleMoves = possibleMoves;
+            const originalEnPassantTarget = enPassantTarget;
+
+            // Temporalmente establecer el jugador actual al color atacante para getPseudoLegalMoves
+            const tempCurrentPlayer = currentPlayer;
+            currentPlayer = attackingColor;
+
+            let attacked = false;
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = currentBoard[r][c];
+                    if (piece) {
+                        const pieceColor = piece === piece.toUpperCase() ? 'white' : 'black';
+                        if (pieceColor === attackingColor) {
+                            // Generar movimientos pseudo-legales para esta pieza atacante
+                            // En esta función, no queremos que enPassantTarget afecte la lógica de ataque
+                            // para saber si un cuadrado *podría* ser atacado, no si la captura es legal.
+                            enPassantTarget = null; // Desactivar temporalmente en passant para esta comprobación
+                            const piecePseudoMoves = getPseudoLegalMoves(r, c, piece);
+                            enPassantTarget = originalEnPassantTarget; // Restaurar
+
+                            for (const move of piecePseudoMoves) {
+                                // Para peones, las capturas son sus ataques
+                                if (piece.toLowerCase() === 'p') {
+                                    const pawnDirection = (pieceColor === 'white') ? -1 : 1;
+                                    if (move.row === r + pawnDirection && (move.col === c - 1 || move.col === c + 1) && move.row === row && move.col === col) {
+                                        attacked = true;
+                                        break;
+                                    }
+                                } else {
+                                    // Para otras piezas, si el movimiento pseudo-legal cae en el cuadrado, está atacado
+                                    if (move.row === row && move.col === col) {
+                                        attacked = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (attacked) break;
+                }
+                if (attacked) break;
+            }
+
+            // Restaurar el estado original
+            selectedPiece = originalSelectedPiece;
+            possibleMoves = originalPossibleMoves;
+            currentPlayer = tempCurrentPlayer; // Restaurar el jugador actual
+
+            return attacked;
+        }
+
+
+        /**
+         * Verifica si el rey del color dado está en jaque en el tablero actual.
+         * @param {Array<Array<string>>} currentBoard - El estado del tablero a verificar.
+         * @param {string} kingColor - El color del rey a verificar ('white' o 'black').
+         * @returns {boolean} True si el rey está en jaque, de lo contrario False.
+         */
+        function isKingInCheck(currentBoard, kingColor) {
+            const kingPos = findKing(currentBoard, kingColor);
+            if (!kingPos) return false; // No se encontró el rey (error o fin de juego)
+
+            const opponentColor = kingColor === 'white' ? 'black' : 'white';
+            return isSquareAttacked(currentBoard, kingPos.row, kingPos.col, opponentColor);
+        }
+
+        /**
+         * Verifica el estado del juego (jaque, jaque mate, ahogado).
+         */
+        function checkGameStatus() {
+            const currentKingInCheck = isKingInCheck(board, currentPlayer);
+
+            // Verificar si hay movimientos legales disponibles para el jugador actual
+            let hasLegalMoves = false;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = board[r][c];
+                    if (piece) {
+                        const pieceColor = (piece === piece.toUpperCase()) ? 'white' : 'black';
+                        if (pieceColor === currentPlayer) {
+                            if (getLegalMoves(r, c, piece).length > 0) {
+                                hasLegalMoves = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (hasLegalMoves) break;
+            }
+
+            if (currentKingInCheck) {
+                if (!hasLegalMoves) {
+                    gameOver = true;
+                    updateMessage(`¡Jaque Mate! Ganan las ${currentPlayer === 'white' ? 'Negras' : 'Blancas'}!`);
+                } else {
+                    updateMessage(`¡Jaque! Turno de las ${currentPlayer === 'white' ? 'Blancas' : 'Negras'}`);
+                }
+            } else {
+                if (!hasLegalMoves) {
+                    gameOver = true;
+                    updateMessage(`¡Ahogado! Es un empate.`);
+                } else {
+                    updateMessage(`Turno de las ${currentPlayer === 'white' ? 'Blancas' : 'Negras'}`);
+                }
+            }
+        }
+
+        // Evento para el botón de reiniciar juego
+        resetButton.addEventListener('click', initializeBoard);
+
+        // Inicializar el juego al cargar la página
+        window.onload = initializeBoard;
+    </script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+¿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Juego Redes Sociales - Velocidad Progresiva</title>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    color: #fff;
+    flex-direction: column;
+  }
+  .game-container {
+    background: #121212cc;
+    border-radius: 2rem;
+    padding: 2rem 3rem;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+    text-align: center;
+  }
+  h1 {
+    font-size: 2.75rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 10px #0009;
+    margin-bottom: 0.25rem;
+  }
+  .instructions {
+    background: #1f2937dd;
+    padding: 1.2rem 2rem;
+    border-radius: 1rem;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    box-shadow: 0 0 20px #7f8cfe88;
+    color: #d1d5db;
+  }
+  .instructions strong {
+    color: #a5b4fc;
+  }
+  canvas {
+    background: linear-gradient(180deg, #0f172acc 0%, #1e293bcc 100%);
+    border-radius: 1.5rem;
+    box-shadow: inset 0 0 15px #6366f1aa;
+    width: 100%;
+    height: 420px;
+    display: block;
+    margin: 0 auto;
+  }
+  .info-panel {
+    background: #1f2937ee;
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-around;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-shadow: 1px 1px 5px #000;
+    color: #e0e7ff;
+  }
+  .info-panel span {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .info-panel span .icon {
+    font-size: 1.6rem;
+  }
+  .game-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+  }
+  .game-buttons button {
+    background: #6366f1;
+    color: white;
+    padding: 0.9rem 2.5rem;
+    border-radius: 1.2rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(99, 102, 241, 0.4);
+    transition: all 0.25s ease;
+    text-transform: uppercase;
+  }
+  .game-buttons button:hover {
+    background: #7c3aed;
+    box-shadow: 0 12px 22px rgba(124, 58, 237, 0.6);
+    transform: translateY(-3px);
+  }
+  .restart-button {
+    background: #ef4444;
+    box-shadow: 0 8px 15px rgba(239, 68, 68, 0.4);
+  }
+  .restart-button:hover {
+    background: #dc2626;
+    box-shadow: 0 12px 22px rgba(220, 38, 38, 0.6);
+  }
+  @media (max-width: 768px) {
+    .game-container {
+      padding: 1.5rem 1.8rem;
+    }
+    canvas {
+      height: 300px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    .info-panel {
+      font-size: 1.1rem;
+    }
+    .instructions {
+      font-size: 1rem;
+      padding: 1rem 1.3rem;
+    }
+    .game-buttons {
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .game-buttons button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Ventajas y Desventajas<br />de las Redes Sociales</h1>
+    <div class="instructions">
+      <p>Controla al personaje con las flechas <strong>izquierda</strong> y <strong>derecha</strong>. <br />
+      <span style="color:#22c55e;">👍💬📈💡✨ Atrapa las Ventajas (emojis verdes) para sumar puntos</span><br />
+      <span style="color:#ef4444;">👎📵😞🚫⚠️ Evita las Desventajas (emojis rojos) para no perder salud</span><br />
+      ¡Cuida tu salud digital y logra la mejor puntuación posible!
+      </p>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="info-panel">
+      <span><span class="icon">⭐</span> Puntuación: <span id="score">0</span></span>
+      <span><span class="icon">❤️‍🩹</span> Salud: <span id="health">100</span></span>
+      <span><span class="icon">⏳</span> Tiempo: <span id="timer">00:00</span></span>
+    </div>
+
+    <div class="game-buttons">
+      <button id="startButton">Iniciar Juego</button>
+      <button id="restartButton" class="restart-button" style="display:none;">Reiniciar Juego</button>
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreDisplay = document.getElementById('score');
+  const healthDisplay = document.getElementById('health');
+  const timerDisplay = document.getElementById('timer');
+  const startButton = document.getElementById('startButton');
+  const restartButton = document.getElementById('restartButton');
+
+  const canvasWidth = 700;
+  const canvasHeight = 420;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
+  let gameRunning = false;
+  let animationId;
+  let spawnIntervalId;
+  let timerIntervalId;
+
+  // Jugador
+  const player = {
+    x: canvas.width / 2 - 30,
+    y: canvas.height - 70,
+    width: 60,
+    height: 60,
+    dx: 0,
+    speed: 7,
+  };
+
+  // Estados del juego
+  let score = 0;
+  let health = 100;
+  let elapsedSeconds = 0;
+
+  // Velocidad de caída inicial y aumento progresivo
+  let fallSpeed = 3;
+  const speedIncreaseInterval = 15; // segundos
+  const speedIncreaseAmount = 1;
+
+  // Emojis ventajas y desventajas
+  const advantageEmojis = ['👍', '💬', '📈', '💡', '✨'];
+  const disadvantageEmojis = ['👎', '📵', '😞', '🚫', '⚠️'];
+
+  // Objetos que caen
+  let items = [];
+
+  // Crear nuevo item
+  function createItem() {
+    const x = Math.random() * (canvas.width - 40);
+    const y = -40;
+    const isAdvantage = Math.random() < 0.6; // 60% ventajas
+    const emoji = isAdvantage
+      ? advantageEmojis[Math.floor(Math.random() * advantageEmojis.length)]
+      : disadvantageEmojis[Math.floor(Math.random() * disadvantageEmojis.length)];
+    const type = isAdvantage ? 'advantage' : 'disadvantage';
+    return { x, y, width: 40, height: 40, emoji, type };
+  }
+
+  // Dibuja jugador con signo de duda ❓ y rectángulo redondeado
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+
+  function drawPlayer() {
+    ctx.fillStyle = '#6366f1';
+    ctx.roundRect(player.x, player.y, player.width, player.height, 15);
+    ctx.fill();
+    ctx.font = '40px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('❓', player.x + player.width / 2, player.y + player.height / 2);
+  }
+
+  // Dibuja items que caen
+  function drawItems() {
+    ctx.font = '36px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    items.forEach(item => {
+      if (item.type === 'advantage') {
+        ctx.fillStyle = '#22c55e';
+        ctx.shadowColor = '#22c55eaa';
+        ctx.shadowBlur = 10;
+      } else {
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#ef4444aa';
+        ctx.shadowBlur = 10;
+      }
+      ctx.fillText(item.emoji, item.x + item.width / 2, item.y + item.height / 2);
+      ctx.shadowBlur = 0;
+    });
+  }
+
+  // Actualiza posición jugador
+  function updatePlayer() {
+    player.x += player.dx;
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+  }
+
+  // Actualiza items caídos
+  function updateItems() {
+    items.forEach(item => {
+      item.y += fallSpeed; // velocidad que aumenta con el tiempo
+    });
+    items = items.filter(item => item.y < canvas.height + item.height);
+  }
+
+  // Detecta colisiones jugador-items
+  function checkCollisions() {
+    items.forEach((item, index) => {
+      if (
+        player.x < item.x + item.width &&
+        player.x + player.width > item.x &&
+        player.y < item.y + item.height &&
+        player.y + player.height > item.y
+      ) {
+        if (item.type === 'advantage') {
+          score += 10;
+        } else {
+          health -= 20;
+          if (health < 0) health = 0;
+        }
+        updateDisplay();
+        items.splice(index, 1);
+        if (health <= 0) {
+          endGame();
+        }
+      }
+    });
+  }
+
+  // Actualiza display de puntaje, salud y tiempo
+  function updateDisplay() {
+    scoreDisplay.textContent = score;
+    healthDisplay.textContent = health;
+    timerDisplay.textContent = formatTime(elapsedSeconds);
+  }
+
+  // Formatea segundos a MM:SS
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  // Limpia canvas
+  function clear() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Dibuja todo el frame
+  function draw() {
+    clear();
+    drawPlayer();
+    drawItems();
+  }
+
+  // Ciclo principal
+  function gameLoop() {
+    if (!gameRunning) return;
+    updatePlayer();
+    updateItems();
+    checkCollisions();
+    draw();
+    animationId = requestAnimationFrame(gameLoop);
+  }
+
+  // Aumenta velocidad progresivamente cada X segundos
+  function increaseSpeedOverTime() {
+    if (!gameRunning) return;
+    if (elapsedSeconds > 0 && elapsedSeconds % speedIncreaseInterval === 0) {
+      fallSpeed += speedIncreaseAmount;
+      // Evitar aumentar más de una vez en el mismo segundo
+      elapsedSeconds++;
+    }
+  }
+
+  // Temporizador
+  function startTimer() {
+    timerIntervalId = setInterval(() => {
+      elapsedSeconds++;
+      increaseSpeedOverTime();
+      updateDisplay();
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerIntervalId);
+  }
+
+  // Eventos teclado
+  function keyDownHandler(e) {
+    if (e.key === 'ArrowRight') player.dx = player.speed;
+    else if (e.key === 'ArrowLeft') player.dx = -player.speed;
+  }
+  function keyUpHandler(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') player.dx = 0;
+  }
+
+  // Inicia juego
+  function startGame() {
+    if (gameRunning) return;
+    gameRunning = true;
+    score = 0;
+    health = 100;
+    elapsedSeconds = 0;
+    fallSpeed = 3;
+    items = [];
+    player.x = canvas.width / 2 - player.width / 2;
+    player.dx = 0;
+    updateDisplay();
+    startButton.style.display = 'none';
+    restartButton.style.display = 'inline-block';
+
+    // Genera items cada 1 segundo
+    spawnIntervalId = setInterval(() => {
+      items.push(createItem());
+    }, 1000);
+
+    startTimer();
+    gameLoop();
+  }
+
+  // Finaliza juego
+  function endGame() {
+    gameRunning = false;
+    clearInterval(spawnIntervalId);
+    stopTimer();
+    cancelAnimationFrame(animationId);
+    alert(`¡Juego terminado!\nTu puntuación final es: ${score}\nTiempo jugado: ${formatTime(elapsedSeconds)}`);
+    restartButton.style.display = 'none';
+    startButton.style.display = 'inline-block';
+  }
+
+  // Reinicia juego
+  function restartGame() {
+    endGame();
+    startGame();
+  }
+
+  // Listeners
+  window.addEventListener('keydown', keyDownHandler);
+  window.addEventListener('keyup', keyUpHandler);
+  startButton.addEventListener('click', startGame);
+  restartButton.addEventListener('click', restartGame);
+</script>
+</body>
+</html>

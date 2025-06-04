@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos generales para el cuerpo de la página */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding-top: 4.5rem; /* Espacio para el encabezado fijo (ajustado para un encabezado más compacto) */
+            background-color: #1a202c; /* Un color de fondo base oscuro */
+            color: #e2e8f0; /* Color de texto claro por defecto */
+            line-height: 1.6; /* Mejora la legibilidad del texto */
+        }
+
+        /* Estilos para el video de fondo */
+        .video-background {
+            position: fixed; /* Fija el video en la pantalla */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Asegura que el video cubra toda el área */
+            z-index: -2; /* Envía el video al fondo */
+            filter: brightness(50%); /* Oscurece más el video para mejorar la legibilidad del contenido */
+        }
+
+        /* Capa de superposición para mejorar la legibilidad del contenido sobre el video */
+        .overlay {
+            position: fixed; /* Fija la capa en la pantalla */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Negro semitransparente */
+            z-index: -1; /* Entre el video y el contenido principal */
+        }
+
+        /* Estilos para el encabezado fijo */
+        header {
+            position: fixed; /* Fija el encabezado en la pantalla */
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to right, rgba(26, 32, 44, 0.98), rgba(45, 55, 72, 0.98)); /* Degradado sutil */
+            padding: 0.75rem 2rem; /* Padding más compacto */
+            display: flex;
+            justify-content: space-between; /* Distribuye los elementos */
+            align-items: center;
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Sombra más pronunciada */
+            z-index: 100; /* Asegura que esté por encima de todo */
+            border-bottom-left-radius: 0.75rem; /* Bordes redondeados */
+            border-bottom-right-radius: 0.75rem;
+        }
+
+        header .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        header .logo-text {
+            font-size: 1.6rem; /* Tamaño del texto del logo */
+            font-weight: 700; /* Más negrita */
+            margin-left: 0.75rem; /* Espacio entre la imagen y el texto del logo */
+            letter-spacing: 0.08em; /* Más espacio entre letras */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Sombra de texto */
+        }
+
+        header nav ul {
+            display: flex;
+            list-style: none; /* Elimina los puntos de la lista */
+            margin: 0;
+            padding: 0;
+        }
+
+        header nav ul li a {
+            color: white;
+            text-decoration: none; /* Elimina el subrayado */
+            padding: 0.6rem 1.1rem; /* Espaciado interno de los enlaces */
+            margin: 0 0.6rem; /* Espacio entre los enlaces */
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.03em; /* Espacio entre letras en los enlaces */
+            word-spacing: 0.15em; /* Espacio entre palabras en los enlaces */
+            text-shadow: 0.5px 0.5px 2px rgba(0, 0, 0, 0.2); /* Sombra de texto */
+        }
+
+        header nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Efecto hover */
+            transform: translateY(-3px); /* Pequeño efecto de elevación */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombra al hover */
+        }
+
+        /* Estilos para el contenedor principal del formulario */
+        .form-main-container {
+            background-color: rgba(255, 255, 255, 0.822); /* Fondo casi opaco */
+            max-width: 850px; /* Ancho ligeramente mayor */
+            margin: 2.5rem auto; /* Centra el contenedor y da más margen */
+            padding: 3rem; /* Más padding interno */
+            border-radius: 1.25rem; /* Bordes más redondeados */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+            color: #333; /* Color de texto oscuro para el contenido */
+            position: relative; /* Para z-index */
+            z-index: 1; /* Asegura que esté sobre el overlay */
+        }
+
+        /* Estilos para fieldsets (secciones del formulario) */
+        fieldset {
+            border: 1px solid #f8f9faad; /* Borde más claro */
+            padding: 2rem; /* Más padding */
+            margin-bottom: 2.5rem; /* Más espacio entre fieldsets */
+            border-radius: 1rem; /* Bordes más redondeados */
+            background-color: #ffffffa2; /* Fondo blanco puro */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); /* Sombra interna sutil */
+        }
+
+        legend {
+            font-weight: 700; /* Negrita */
+            font-size: 1.8rem; /* Tamaño de fuente más grande */
+            color: #2c5282; /* Azul oscuro */
+            padding: 0 0.75rem; /* Espaciado alrededor del texto de la leyenda */
+            margin-bottom: 1.5rem; /* Más espacio debajo de la leyenda */
+            text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.1); /* Sombra de texto */
+        }
+
+        /* Estilos para etiquetas e inputs del formulario */
+        label {
+            display: block; /* Cada label en su propia línea */
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 1.05rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 0.9rem; /* Más padding */
+            margin-bottom: 1.5rem; /* Más margen */
+            border: 1px solid #a0aec0; /* Borde gris */
+            border-radius: 0.6rem; /* Bordes más redondeados */
+            font-size: 1.05rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #f7fafc; /* Fondo ligeramente gris para inputs */
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4299e1; /* Borde azul al enfocar */
+            box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.4); /* Sombra de enfoque azul más grande */
+            background-color: white; /* Fondo blanco al enfocar */
+        }
+
+        textarea {
+            resize: vertical; /* Permite redimensionar verticalmente */
+            min-height: 100px; /* Altura mínima */
+        }
+
+        /* Estilos para preguntas del cuestionario */
+        .question-text {
+            font-weight: 700; /* Más negrita */
+            margin-bottom: 1rem;
+            color: #2d3748;
+            font-size: 1.15rem; /* Tamaño de fuente ligeramente mayor */
+        }
+
+        input[type="radio"] {
+            margin-right: 0.6rem;
+            transform: scale(1.2); /* Hace los radio buttons un poco más grandes */
+            accent-color: #4299e1; /* Color del radio button al seleccionarlo */
+            cursor: pointer;
+        }
+
+        /* Estilos para las opciones de radio */
+        .radio-option {
+            display: flex; /* Usa flexbox para alinear el radio y el texto */
+            align-items: center; /* Centra verticalmente */
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1rem; /* Más padding */
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 0.5rem;
+            border: 1px solid transparent; /* Borde transparente por defecto */
+        }
+
+        .radio-option:hover {
+            background-color: #edf2f7; /* Fondo suave al pasar el ratón */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08); /* Sombra sutil al hover */
+        }
+
+        .radio-option input[type="radio"]:checked + span {
+            font-weight: 600; /* Negrita para la opción seleccionada */
+            color: #2b6cb0; /* Color azul para la opción seleccionada */
+        }
+        .radio-option input[type="radio"]:checked {
+            border-color: #4299e1; /* Borde azul para el radio seleccionado */
+        }
+
+        /* Estilos para botones */
+        .botones {
+            text-align: center;
+            margin-top: 3rem; /* Más margen superior */
+        }
+
+        .botones button {
+            background: linear-gradient(to right, #4299e1, #3182ce); /* Degradado para el botón principal */
+            color: white;
+            padding: 1rem 2rem; /* Más padding */
+            border: none;
+            border-radius: 0.6rem; /* Bordes más redondeados */
+            font-size: 1.15rem; /* Tamaño de fuente ligeramente mayor */
+            font-weight: 700; /* Más negrita */
+            cursor: pointer;
+            transition: all 0.3s ease; /* Transición para todas las propiedades */
+            margin: 0 0.85rem; /* Espacio entre botones */
+            box-shadow: 0 6px 15px rgba(66, 153, 225, 0.4); /* Sombra más pronunciada */
+            letter-spacing: 0.02em;
+        }
+
+        .botones button:hover {
+            background: linear-gradient(to right, #3182ce, #2b6cb0); /* Degradado más oscuro al hover */
+            transform: translateY(-4px); /* Efecto de elevación más notorio */
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.5);
+        }
+
+        .botones button[type="reset"] {
+            background: linear-gradient(to right, #cbd5e0, #a0aec0); /* Degradado gris para el botón de limpiar */
+            color: #2d3748;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .botones button[type="reset"]:hover {
+            background: linear-gradient(to right, #a0aec0, #718096);
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Estilos para los resultados del cuestionario */
+        #resultado {
+            margin-top: 3rem; /* Más margen superior */
+            padding: 2rem; /* Más padding */
+            background-color: #576196b4; /* Fondo verde claro para los resultados */
+            border-radius: 1rem; /* Bordes más redondeados */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            text-align: left;
+            color: #2d3748;
+            font-size: 1.15rem;
+            border: 2px solid #1a2b8b; /* Borde verde */
+        }
+        #resultado h2 {
+            color: #2c5282;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .incorrecto {
+            color: #00ffff; /* Rojo más oscuro para respuestas incorrectas */
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .correcto {
+            color: #2f855a; /* Verde más oscuro para respuestas correctas */
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Estilos para el footer */
+        footer {
+            background-color: #1a202c; /* Fondo oscuro */
+            color: #cbd5e0; /* Texto claro */
+            text-align: center;
+            padding: 2.5rem; /* Más padding */
+            margin-top: 4rem; /* Más margen superior */
+            border-top-left-radius: 0.75rem; /* Bordes redondeados */
+            border-top-right-radius: 0.75rem;
+            box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.4); /* Sombra superior más pronunciada */
+        }
+        footer p {
+            font-size: 0.95rem;
+            letter-spacing: 0.01em;
+        }
+
+        /* Media queries para responsividad */
+        @media (max-width: 768px) {
+            header {
+                padding: 0.75rem 1rem;
+            }
+            header nav ul {
+                flex-direction: column; /* Apila los enlaces en pantallas pequeñas */
+                align-items: center;
+                margin-top: 0.5rem;
+            }
+            header nav ul li {
+                margin: 0.25rem 0; /* Menos margen vertical */
+            }
+            header nav ul li a {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+            .logo-text {
+                font-size: 1.4rem;
+            }
+            .form-main-container {
+                margin: 1.5rem auto;
+                padding: 2rem;
+            }
+            fieldset {
+                padding: 1.25rem;
+            }
+            legend {
+                font-size: 1.6rem;
+            }
+            .botones button {
+                padding: 0.75rem 1.25rem;
+                font-size: 1rem;
+                margin: 0 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column; /* Apila el logo y la navegación */
+                padding: 0.5rem 1rem;
+            }
+            header nav {
+                width: 100%;
+                text-align: center;
+            }
+            header nav ul {
+                flex-wrap: wrap; /* Permite que los enlaces se envuelvan */
+                justify-content: center;
+            }
+            .logo-container {
+                margin-bottom: 0.5rem;
+            }
+            .form-main-container {
+                padding: 1.5rem;
+                margin: 1rem auto;
+            }
+            legend {
+                font-size: 1.4rem;
+            }
+            .question-text {
+                font-size: 1rem;
+            }
+            .radio-option {
+                padding: 0.5rem;
+            }
+            .botones button {
+                display: block;
+                width: 90%;
+                margin: 0.5rem auto;
+            }
+        }
+         /* Estilos para el video de fondo */
+    .video-background {
+      background-size: cover; /* Asegura que el video cubra el área sin distorsionarse. */
+      filter: brightness(50%) contrast(1.1); /* Oscurece y aumenta el contraste del video para mejorar la legibilidad del contenido. */
+      min-width: 100%; /* Asegura que cubra todo el ancho. */
+      min-height: 100%; /* Asegura que cubra toda la altura. */
+      position: fixed; /* Fija el video en la posición de la ventana de visualización. */
+      top: 0; /* Alinea el video en la parte superior. */
+      left: 0; /* Alinea el video a la izquierda. */
+      width: 100%; /* Asegura que el video cubra todo el ancho. */
+      height: 100%; /* Asegura que el video cubra toda la altura. */
+      object-fit: cover; /* Escala el video para cubrir el contenedor manteniendo su relación de aspecto. */
+      z-index: -1; /* Envía el video al fondo, detrás de todo el contenido. */
+      border-radius: 0; /* Asegura que el video no tenga bordes redondeados si se aplica globalmente. */
+    }
+
+    </style>
+</head>
+<body>
+    <video class="video-background" autoplay loop muted playsinline>
+        <source src="https://v.ftcdn.net/08/39/26/62/700_F_839266271_ZH8ZicFQeV3nUTrzuddIbqtzyYIaONrL_ST.mp4" type="video/mp4">
+        Tu navegador no soporta el elemento de video.
+    </video>
+    <div class="overlay"></div>
+
+    <header>
+        <div class="logo-container">
+            <img src="FONDO1.jpeg" alt="" class="w-16 h-16 rounded-full shadow-md">
+            <span class="logo-text">GRUPO_1</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="Pagina Principal.html">Inicio</a></li>
+                <li><a href="ventajas.html">Ventajas</a></li>
+                <li><a href="desventajas.html">Desventajas</a></li>
+                <li><a href="ejemplo.html">Ejemplo</a></li>
+                <li><a href="juegos.html">Juegos</a></li>
+                <li><a href="cuestionario.html">Cuestionario</a></li>
+            </ul>
+        </nav>
+    </header>
+    <video class="video-background" autoplay loop muted playsinline>
+    <source src="https://media.istockphoto.com/id/2007448368/video/communication-network-video-elements-from-social-media-trends-viral-clips-gaming-business.mp4?s=mp4-640x640-is&k=20&c=Xou5gBP1Am8g16CvR_EVRdADNYNH1AU7NlkiT2sYp4I=" type="video/mp4">
+    Tu navegador no soporta la etiqueta de video. </video>
+
+    <div class="form-main-container">
+        <h1 class="text-4xl font-extrabold text-center mb-8 text-gray-800">Cuestionario sobre Redes Sociales</h1>
+
+        <form id="quizForm">
+            <fieldset>
+                <legend>Información Personal</legend>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo">
+                
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" name="correo" required placeholder="tu.correo@ejemplo.com">
+            </fieldset>
+
+            <fieldset>
+                <legend>Preguntas</legend>
+
+                <p class="question-text">1. ¿Cuál de las siguientes es una ventaja principal de las redes sociales?</p>
+                 <label class="radio-option"><input type="radio" name="p1" value="a"> <span>A) Pérdida de tiempo</span></label>
+                <label class="radio-option"><input type="radio" name="p1" value="b"> <span>B) Acceso rápido a la información</span></label>
+                <label class="radio-option"><input type="radio" name="p1" value="c"> <span>C) Ciberacoso</span></label>
+                <label class="radio-option"><input type="radio" name="p1" value="d"> <span>D) Aislamiento social</span></label>
+
+                <p class="question-text mt-4">2. ¿Qué desventaja común se asocia con el uso excesivo de redes sociales?</p>
+                
+                <label class="radio-option"><input type="radio" name="p2" value="a"> <span>A) Mejora en la comunicación</span></label>
+                <label class="radio-option"><input type="radio" name="p2" value="b"> <span>B) Creación de redes profesionales</span></label>
+               <label class="radio-option"><input type="radio" name="p2" value="c"> <span>C) Adicción</span></label>
+                <label class="radio-option"><input type="radio" name="p2" value="d"> <span>D) Interacción global</span></label>
+
+                <p class="question-text mt-4">3. ¿Cómo pueden beneficiar las redes sociales a los negocios?</p>
+               
+                <label class="radio-option"><input type="radio" name="p3" value="a"> <span>A) Aumentando el aislamiento del cliente</span></label>
+                <label class="radio-option"><input type="radio" name="p3" value="b"> <span>B) Disminuyendo la visibilidad de marca</span></label>
+                 <label class="radio-option"><input type="radio" name="p3" value="c"> <span>C) Promocionando productos y servicios</span></label>
+                <label class="radio-option"><input type="radio" name="p3" value="d"> <span>D) Generando desinformación</span></label>
+
+                <p class="question-text mt-4">4. ¿Cuál es una desventaja relacionada con la privacidad en redes sociales?</p>
+                
+                <label class="radio-option"><input type="radio" name="p4" value="a"> <span>A) Conexión con familiares lejanos</span></label>
+                <label class="radio-option"><input type="radio" name="p4" value="b"> <span>B) Difusión de información personal sin consentimiento</span></label>
+                <label class="radio-option"><input type="radio" name="p4" value="c"> <span>C) Acceso a noticias</span></label>
+                <label class="radio-option"><input type="radio" name="p4" value="d"> <span>D) Comunicación instantánea</span></label>
+
+                <p class="question-text mt-4">5. ¿Qué ventaja educativa ofrecen las redes sociales?</p>
+               
+                <label class="radio-option"><input type="radio" name="p5" value="a"> <span>A) Disminución del rendimiento académico</span></label>
+                <label class="radio-option"><input type="radio" name="p5" value="b"> <span>B) Dispersión constante</span></label>
+                 <label class="radio-option"><input type="radio" name="p5" value="c"> <span>C) Acceso a contenido educativo y foros</span></label>
+                <label class="radio-option"><input type="radio" name="p5" value="d"> <span>D) Dificultad para concentrarse</span></label>
+
+                <p class="question-text mt-4">6. ¿Qué efecto negativo puede tener la comparación constante en redes sociales?</p>
+                
+                <label class="radio-option"><input type="radio" name="p6" value="a"> <span>A) Mejora del autoestima</span></label>
+                <label class="radio-option"><input type="radio" name="p6" value="b"> <span>B) Aumento de motivación</span></label>
+                <label class="radio-option"><input type="radio" name="p6" value="c"> <span>C) Ansiedad y depresión</span></label>
+                <label class="radio-option"><input type="radio" name="p6" value="d"> <span>D) Mejora de relaciones personales</span></label>
+
+                <p class="question-text mt-4">7. ¿Cuál es una ventaja en términos de comunicación interpersonal?</p>
+                
+                <label class="radio-option"><input type="radio" name="p7" value="a"> <span>A) Interrupción del sueño</span></label>
+                <label class="radio-option"><input type="radio" name="p7" value="b"> <span>B) Conectar con personas de todo el mundo</span></label>
+                <label class="radio-option"><input type="radio" name="p7" value="c"> <span>C) Aislamiento emocional</span></label>
+                <label class="radio-option"><input type="radio" name="p7" value="d"> <span>D) Pérdida de habilidades sociales</span></label>
+
+                <p class="question-text mt-4">8. ¿Cuál es una desventaja en cuanto a la veracidad de la información?</p>
+                 <label class="radio-option"><input type="radio" name="p8" value="a"> <span>A) Mayor acceso a fuentes confiables</span></label>
+                <label class="radio-option"><input type="radio" name="p8" value="b"> <span>B) Propagación de noticias falsas</span></label>
+               
+                <label class="radio-option"><input type="radio" name="p8" value="c"> <span>C) Mejora en el pensamiento crítico</span></label>
+                <label class="radio-option"><input type="radio" name="p8" value="d"> <span>D) Información verificada constantemente</span></label>
+
+                <p class="question-text mt-4">9. ¿Qué ventaja ofrecen las redes sociales para movimientos sociales?</p>
+               
+                <label class="radio-option"><input type="radio" name="p9" value="a"> <span>A) Dispersan el mensaje</span></label>
+                <label class="radio-option"><input type="radio" name="p9" value="b"> <span>B) Limitan la participación</span></label>
+                <label class="radio-option"><input type="radio" name="p9" value="c"> <span>C) Facilitan la organización y difusión de causas</span></label>
+                <label class="radio-option"><input type="radio" name="p9" value="d"> <span>D) Restringen la libertad de expresión</span></label>
+
+                <p class="question-text mt-4">10. ¿Cuál es un riesgo para los menores en redes sociales?</p>
+                <label class="radio-option"><input type="radio" name="p10" value="a"> <span>A) Estimulación cognitiva</span></label>
+                <label class="radio-option"><input type="radio" name="p10" value="b"> <span>B) Riesgo de grooming o acoso en línea</span></label>
+                
+                <label class="radio-option"><input type="radio" name="p10" value="c"> <span>C) Desarrollo de pensamiento crítico</span></label>
+                <label class="radio-option"><input type="radio" name="p10" value="d"> <span>D) Aumento del rendimiento escolar</span></label>
+            </fieldset>
+
+            <div class="botones">
+                <button type="button" onclick="corregir()">Enviar Respuestas</button>
+                <button type="reset">Limpiar Formulario</button>
+            </div>
+        </form>
+
+        <div id="resultado"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 - kerly_Wendy_Jhoel_Tiago</p>
+    </footer>
+
+    <script>
+        function corregir() {
+            const nombre = document.getElementById('nombre').value;
+            const correo = document.getElementById('correo').value;
+
+            // Simple validación de campos de información personal
+            if (!nombre || !correo) {
+                document.getElementById("resultado").innerHTML = `
+                    <p class="incorrecto">Por favor, completa tu nombre y correo electrónico antes de enviar el cuestionario.</p>
+                `;
+                return; // Detiene la función si los campos están vacíos
+            }
+
+            const respuestas = {
+                p1: "b", p2: "c", p3: "c", p4: "b", p5: "c",
+                p6: "c", p7: "b", p8: "b", p9: "c", p10: "b"
+            };
+
+            let correctas = 0;
+            let total = Object.keys(respuestas).length;
+            let resultadoHTML = `<h2 class="text-2xl font-bold mb-4">Resultados del Cuestionario</h2>`;
+
+            for (let clave in respuestas) {
+                const opciones = document.getElementsByName(clave);
+                let seleccion = null;
+
+                for (let opcion of opciones) {
+                    if (opcion.checked) {
+                        seleccion = opcion.value;
+                        break;
+                    }
+                }
+
+                if (seleccion === respuestas[clave]) {
+                    correctas++;
+                } else {
+                    resultadoHTML += `<p class="incorrecto">❌ Pregunta ${clave.substring(1)}: Incorrecto. La respuesta correcta era ${respuestas[clave].toUpperCase()}.</p>`;
+                }
+            }
+
+            let nota = (correctas / total) * 10;
+            resultadoHTML += `<p class="mt-4">Puntaje final: <span class="font-bold">${correctas}</span> de <span class="font-bold">${total}</span></p>`;
+            resultadoHTML += `<p>Nota: <span class="font-bold text-blue-600">${nota.toFixed(1)}</span> / 10</p>`;
+
+            document.getElementById("resultado").innerHTML = resultadoHTML;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo Circuito</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de la fuente Inter de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos CSS personalizados para el cuerpo de la página y elementos específicos */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0; /* Elimina el margen predeterminado del body */
+            /* Añade un padding superior al body para dejar espacio a los encabezados fijos.
+               Debe ser igual o mayor a la altura del encabezado más alto. */
+            padding-top: 5rem; /* Altura del encabezado de "Información" */
+            min-height: 100vh; /* Asegura que el body ocupe al menos toda la altura de la ventana */
+            background-color: #000125; /* Fondo oscuro para el body, visible si el video no carga */
+        }
+
+        /* Estilos para el encabezado superior de "Información" */
+        .info-title-header {
+            position: fixed; /* Fija el encabezado en la pantalla */
+            top: 0;          /* Lo ancla a la parte superior */
+            left: 0;         /* Lo ancla a la parte izquierda */
+            width: 100%;     /* Ocupa todo el ancho */
+            height: 5rem;    /* Altura del encabezado */
+            background-color: #000125; /* Fondo oscuro */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem; /* Tamaño del título */
+            font-weight: bold;
+            z-index: 101;    /* Más alto que el encabezado principal para que lo cubra */
+            opacity: 1;      /* Visible por defecto */
+            pointer-events: auto; /* Permite interacciones (clics) */
+            transition: opacity 0.3s ease; /* Transición suave para la visibilidad */
+            box-shadow: 0 2px 10px rgba(75, 29, 29, 0.5); /* Sombra */
+        }
+
+        /* Estilos para el encabezado de navegación principal (que se muestra al hacer scroll) */
+        .main-fixed-header {
+            position: fixed; /* Fija el encabezado en la pantalla */
+            top: 0;          /* Lo ancla a la parte superior */
+            left: 0;         /* Lo ancla a la parte izquierda */
+            width: 100%;     /* Ocupa todo el ancho de la pantalla */
+            background-color: rgba(0, 6, 80, 0.8); /* Fondo semitransparente oscuro */
+            padding: 1rem 2rem; /* Espaciado interno del encabezado */
+            z-index: 100;    /* Asegura que esté por encima del contenido, pero debajo del info-header */
+            display: flex;   /* Usa flexbox para alinear elementos */
+            justify-content: space-between; /* Distribuye el espacio entre los elementos */
+            align-items: center; /* Centra verticalmente */
+            color: white;    /* Color del texto */
+            box-shadow: 0 2px 10px rgba(151, 193, 228, 0.5); /* Sombra sutil */
+            opacity: 0;      /* Oculto por defecto */
+            pointer-events: none; /* No permite interacciones cuando está oculto */
+            transition: opacity 0.3s ease; /* Transición suave para la visibilidad */
+        }
+
+        .main-fixed-header .nav-link {
+            padding: 0.5rem 1.5rem; /* Ajustado el padding para mejor apariencia */
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+            color: white; /* Asegura que el color del enlace sea blanco */
+            text-decoration: none; /* Elimina el subrayado por defecto */
+        }
+
+        .main-fixed-header .nav-link:hover {
+            background-color: rgba(33, 52, 136, 0.904);
+        }
+
+        /* Capa de superposición general para mejorar la legibilidad del texto sobre el video */
+        .overlay {
+            position: fixed; /* También es fija como el fondo */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* Cubre toda la ventana de visualización */
+            background-color: rgba(3, 3, 3, 0.4); /* Color oscuro semitransparente */
+            z-index: -1; /* Se sitúa entre el video de fondo y el contenido principal */
+        }
+
+        /* Estilos para el contenido principal de la página (que se desplazará) */
+        .content {
+            position: relative; /* Permite que el contenido se posicione sobre la capa */
+            z-index: 1; /* Asegura que el contenido esté por encima de la capa y el video */
+            padding: 2rem; /* Espaciado interno para el contenido */
+            max-width: 900px; /* Limita el ancho del contenido para mejor lectura */
+            margin: 0 auto; /* Centra el contenido */
+            background-color: rgba(24, 24, 24, 0.692); /* Fondo semitransparente para el contenido */
+            border-radius: 0.75rem; /* Bordes redondeados */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra para el cuadro de contenido */
+            color: hsl(229, 100%, 73%); /* Color del texto del contenido */
+        }
+
+        /* Colores de texto específicos para los elementos dentro del contenido */
+        .content h1 { /* Para el título principal del contenido */
+            color: aliceblue;
+        }
+        .content h2 { /* Para los subtítulos */
+            color: aqua;
+        }
+        .content p { /* Para los párrafos (si los hubiera directamente en content) */
+            color: hsl(229, 100%, 73%); /* Color del texto del contenido */
+        }
+        .content li { /* Para elementos de lista */
+            color: azure;
+        }
+
+        /* Estilos para las imágenes y videos dentro del contenido */
+        .content img,
+        .content video {
+            height: auto; /* Altura automática para mantener la proporción */
+            max-width: 100%; /* Asegura que la imagen/video no se desborde del contenedor */
+            display: block; /* Para que margin: auto funcione para centrar */
+            margin-left: auto; /* Centra la imagen/video */
+            margin-right: auto; /* Centra la imagen/video */
+            border-radius: 0.75rem; /* Bordes redondeados */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra */
+        }
+        
+        /* Estilos para el pie de página */
+        footer {
+            color: aliceblue;
+        }
+        
+        /* Estilos para el video de fondo */
+        .video-background {
+            background-size: cover; /* Asegura que el video cubra el área sin distorsionarse. */
+            filter: brightness(50%) contrast(1.1); /* Oscurece y aumenta el contraste del video para mejorar la legibilidad del contenido. */
+            min-width: 100%; /* Asegura que cubra todo el ancho. */
+            min-height: 100%; /* Asegura que cubra toda la altura. */
+            position: fixed; /* Fija el video en la posición de la ventana de visualización. */
+            top: 0; /* Alinea el video en la parte superior. */
+            left: 0; /* Alinea el video a la izquierda. */
+            width: 100%; /* Asegura que el video cubra todo el ancho. */
+            height: 100%; /* Asegura que el video cubra toda la altura. */
+            object-fit: cover; /* Escala el video para cubrir el contenedor manteniendo su relación de aspecto. */
+            z-index: -2; /* Envía el video al fondo, detrás de todo el contenido y el overlay. */
+            border-radius: 0; /* Asegura que el video no tenga bordes redondeados si se aplica globalmente. */
+        }
+
+        /* Estilos para el botón de descarga */
+        .download-button {
+            display: inline-block;
+            background-color: #4CAF50; /* Un color verde agradable */
+            color: white;
+            padding: 14px 28px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem; /* Espacio superior */
+        }
+        .download-button:hover {
+            background-color: #2d5f2f; /* Un verde más oscuro al pasar el ratón */
+            transform: translateY(-2px);
+        }
+        .download-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado fijo superior con el título "CIRCUITO" -->
+    <header id="infoTitleHeader" class="info-title-header">
+        <h1>CIRCUITO</h1>
+    </header>
+
+    <!-- Encabezado de navegación principal que aparece al hacer scroll -->
+    <header id="mainFixedHeader" class="main-fixed-header">
+        <div class="text-2xl font-bold">GRUPO1</div>
+        
+        <nav class="flex space-x-6 md:space-x-8 lg:space-x-10">
+            <a href="Pagina Principal.html" class="nav-link">Inicio</a>
+            <a href="ventajas.html" class="nav-link">Ventajas</a>
+            <a href="desventajas.html" class="nav-link">Desventajas</a>
+            <a href="ejemplo.html" class="nav-link">Ejemplo</a>
+            <a href="juegos.html" class="nav-link">Juegos</a>
+            <a href="cuestionario.html" class="nav-link">Cuestionario</a>
+            <!-- Nuevo enlace añadido para acceder a este archivo (ejemplo.html) -->
+            <a href="ejemplo.html" class="nav-link">Circuito</a> 
+        </nav>
+        
+        <!-- Imagen del logo en el encabezado principal -->
+        <img src="FONDO1.jpeg" alt="Logo del Sitio" class="w-16 h-16 md:w-20 md:h-20 rounded-full ml-4 shadow-lg">
+    </header>
+
+    <!-- Video de fondo que cubre toda la pantalla -->
+    <video class="video-background" autoplay loop muted playsinline>
+        <source src="https://media.istockphoto.com/id/2152696298/video/artificial-intelligence-document-file-folder-manager-paperwork-chatbot-ai-prompt-generative.mp4?s=mp4-640x640-is&k=20&c=YNP24jo0Ig99C4DvQDqOy7mik4lnFlRscrSogIlw114=" type="video/mp4">
+        Tu navegador no soporta la etiqueta de video.
+    </video>
+
+    <!-- Capa de superposición para mejorar la legibilidad del texto sobre el video -->
+    <div class="overlay"></div>
+
+    <!-- Contenido principal de la página -->
+    <main class="content mt-8">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 text-center">CIRCUITO EN LAS REDES SOCIALES?</h1> 
+        <ul>
+            <li class="mb-4">
+                <p><strong>En sí, el circuito sí tiene que ver,</strong> ya que gracias al buen uso de las redes sociales se pudo facilitar la creación. Además, es una ventaja porque las redes sociales también pueden ofrecer información importante para el aprendizaje.</p>
+                <video class="mb-4" src="WhatsApp Video 2025-05-30 at 11.30.04.mp4" controls loading="lazy" poster="https://placehold.co/400x400/000/FFF?text=Video+Circuito"></video>
+            </li>
+            <li class="mb-4">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Ejemplo:</h2>
+                <p>Las redes sociales son el espectáculo de luces y sonidos que vemos y escuchamos. Los circuitos electrónicos son todos los cables, interruptores y piezas eléctricas que hacen que ese espectáculo sea posible. Sin ellos, no hay electricidad que fluya y, por lo tanto, no hay "luces" ni "sonidos" en las redes sociales.</p>
+                <img class="mb-4" src="CIRCUITO.jpeg" alt="Diagrama de Circuito" loading="lazy">
+            </li>
+            <li class="mb-4">
+                <iframe class="mb-4" style="max-width:100%" src="https://wordwall.net/es/embed/099b3e85a30b4e91bdc85cdd5c5a969f?themeId=21&templateId=69&fontStackId=0" width="500" height="380" frameborder="0" allowfullscreen></iframe>
+            </li>
+        </ul>
+
+        <!-- Sección para el enlace de descarga del archivo -->
+        <div class="text-center mt-12 mb-8">
+            <h2 class="text-3xl font-bold text-white mb-4">Descarga la Plantilla redes sociales</h2>
+            <a href="Plantilla-seguridad-informatica (1).pptx" download="Plantilla-seguridad-informatica (1).pptx" class="download-button">
+                Descargar Plantilla
+            </a>
+            <p class="text-gray-300 text-sm mt-2">Haz clic para descargar el archivo.</p>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="py-10 mt-10 text-gray-400 text-sm text-center">
+        <p>&copy; 2025 Sitio web. Autores: Kerly, Tiago, Wendy, Jhoel </p>
+    </footer>
+
+    <script>
+        // Obtenemos referencias a los dos encabezados
+        const infoTitleHeader = document.getElementById('infoTitleHeader');
+        const mainFixedHeader = document.getElementById('mainFixedHeader');
+
+        // Función que se ejecuta cada vez que el usuario se desplaza
+        function handleScroll() {
+            const scrollThreshold = 100; // Define a qué punto de scroll quieres que cambien
+
+            if (window.scrollY > scrollThreshold) {
+                // Cuando el usuario ha hecho suficiente scroll
+                infoTitleHeader.style.opacity = '0';
+                infoTitleHeader.style.pointerEvents = 'none'; // Deshabilita clics cuando no está visible
+                mainFixedHeader.style.opacity = '1';
+                mainFixedHeader.style.pointerEvents = 'auto'; // Habilita clics cuando está visible
+            } else {
+                // Cuando el usuario está al principio de la página
+                infoTitleHeader.style.opacity = '1';
+                infoTitleHeader.style.pointerEvents = 'auto';
+                mainFixedHeader.style.opacity = '0';
+                mainFixedHeader.style.pointerEvents = 'none';
+            }
+        }
+
+        // Añadimos el "listener" para el evento de desplazamiento
+        window.addEventListener('scroll', handleScroll);
+
+        // También llamamos a la función al cargar la página para establecer el estado inicial correcto
+        window.addEventListener('load', handleScroll);
+    </script>
+</body>
+</html>
+
